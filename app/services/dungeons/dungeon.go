@@ -1,4 +1,4 @@
-package dungeons
+package Dungeon
 
 import (
 	"context"
@@ -63,7 +63,7 @@ func (d *Dungeon) Get(queryParams models.QueryParams) ([]models.Dungeon, error) 
 }
 
 // create new dungeon in db
-func (d *Dungeon) Create(in models.Dungeon) (*models.Dungeon, error) {
+func (d *Dungeon) Create(in *models.Dungeon) (*models.Dungeon, error) {
 	var dungeon models.Dungeon
 
 	srv := server.GetServer()
