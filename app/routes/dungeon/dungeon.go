@@ -16,6 +16,7 @@ func SetupRouter(g *gin.Engine) {
 	{
 		dungeons := v1.Group("/dungeons")
 		{
+			dungeons.GET("", dungeonController.Get)
 			dungeons.POST("", dungeonController.Create)
 		}
 	}

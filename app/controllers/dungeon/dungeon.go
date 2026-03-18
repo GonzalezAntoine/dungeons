@@ -19,6 +19,67 @@ func New(dungeonService *dungeon.Dungeon) *Dungeon {
 	}
 }
 
+// Get controller to get list of dungeon
+func (s *Dungeon) Get(ctx *gin.Context) {
+	var params models.QueryParams
+
+	params.Parse(ctx)
+	messageTypes := &models.MessageTypes{
+		OK:                  "dungeon.Search.Found",
+		BadRequest:          "dungeon.Search.BadRequest",
+		NotFound:            "dungeon.Search.NotFound",
+		InternalServerError: "dungeon.Search.Error",
+	}
+
+	dungeons, err := s.DungeonService.Get(params)
+	if err != nil {
+		common.SendResponse(ctx, http.StatusInternalServerError, models.KnownError(http.StatusInternalServerError, messageTypes.InternalServerError, err))
+		return
+	}
+	totalCount := len(dungeons)
+	if totalCount == 0 {
+		status := http.StatusNotFound
+		common.SendResponse(ctx, status, models.KnownError(status, messageTypes.NotFound, err))
+		return
+	}
+
+	low := params.Offset - 1
+	if low == -1 {
+		low = 0
+	}
+
+	// Available CountMax calculation
+	maxCount := params.Count
+	if maxCount == 0 {
+		maxCount = 100
+	}
+
+	high := maxCount + low
+	if high > totalCount {
+		high = totalCount
+	}
+
+	if low > high {
+		status := http.StatusBadRequest
+		common.SendResponse(ctx, status, models.KnownError(status, messageTypes.BadRequest, err))
+		return
+	}
+
+	sendingDungeons := dungeons[low:high]
+	meta := models.MetaResponse{
+		ObjectName: "Dungeon",
+		TotalCount: totalCount,
+		Count:      len(sendingDungeons),
+		Offset:     low + 1,
+	}
+
+	response := &models.WSResponse{
+		Meta: meta,
+		Data: sendingDungeons,
+	}
+	common.SendResponse(ctx, http.StatusOK, response)
+}
+
 func (s *Dungeon) Create(ctx *gin.Context) {
 	var in models.Dungeon
 	
