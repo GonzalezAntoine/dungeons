@@ -18,6 +18,8 @@ func SetupRouter(g *gin.Engine) {
 		{
 			dungeons.GET("", dungeonController.Get)
 			dungeons.POST("", dungeonController.Create)
+			dungeons.GET("/:id", dungeonController.GetByID)
+			dungeons.POST("/:id", dungeonController.Update)
 		}
 	}
 }
