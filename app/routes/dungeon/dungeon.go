@@ -20,7 +20,7 @@ func SetupRouter(g *gin.Engine) {
 			{
 				dungeons.POST("", dungeonController.Create)
 				dungeons.POST("/:id/publish", dungeonController.Status)
-				//dungeons.POST("/:id/steps", dungeonController.UpdateSteps)
+				dungeons.POST("/:id/steps", dungeonController.UpdateSteps)
 			}
 		}
 	}

@@ -177,3 +177,23 @@ func (s *Dungeon) Status(ctx *gin.Context) {
 	}
 	common.SendResponse(ctx, http.StatusOK, models.Success(http.StatusOK, "dungeon.Status.Updated", "dungeon status updated"))
 }
+
+func (s *Dungeon) UpdateSteps(ctx *gin.Context) {
+	var in models.Dungeon
+
+	// Récupérer le body JSON
+	if err := ctx.BindJSON(&in); err != nil {
+		common.SendResponse(ctx, http.StatusBadRequest, models.KnownError(http.StatusBadRequest, "dungeon.UpdateSteps.BadRequest", err))
+		return
+	}
+
+	id := ctx.Param("id")
+
+	err := s.DungeonService.UpdateSteps(id, &in) // ✅ plus nil
+	if err != nil {
+		common.SendResponse(ctx, http.StatusInternalServerError, models.KnownError(http.StatusInternalServerError, "dungeon.UpdateSteps.Error", err))
+		return
+	}
+
+	common.SendResponse(ctx, http.StatusOK, models.Success(http.StatusOK, "dungeon.UpdateSteps.Updated", "dungeon steps updated"))
+}

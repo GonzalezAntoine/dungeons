@@ -195,3 +195,23 @@ func (d *Dungeon) Publish(id string, in *models.Dungeon) error {
 	_, err = collection.UpdateOne(context.TODO(), filter, update)
 	return err
 }
+
+func (d *Dungeon) UpdateSteps(id string, in *models.Dungeon) error {
+	var err error
+	srv := server.GetServer()
+
+	dungeon, err := d.GetByID(id)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+
+	dungeon.Boss = in.Boss
+
+	collection := srv.Database.Collection(dungeon.Collection())
+
+	filter := bson.M{"customID": id} // ✅ simple et safe
+	update := bson.M{"$set": dungeon}
+	_, err = collection.UpdateOne(context.TODO(), filter, update)
+	return err
+}
