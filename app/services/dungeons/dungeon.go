@@ -97,25 +97,23 @@ func (d *Dungeon) Create(in *models.Dungeon) (*models.Dungeon, error) {
 }
 
 func (d *Dungeon) GetByID(id string) (models.Dungeon, error) {
-	var (
-		err error
-		dungeon models.Dungeon
-		queryParams models.QueryParams
-	)
+	var dungeon models.Dungeon
 
 	srv := server.GetServer()
 	collection := srv.Database.Collection(dungeon.Collection())
 
-	queryParams.FilterClause = append(queryParams.FilterClause, "customID", id)
-	filter := mongodb.SelectConstructeur(queryParams)
-	err = collection.FindOne(context.TODO(), filter).Decode(&dungeon)
-	if err == nil {
+	filter := bson.M{"customID": id} // ✅ simple et safe
+
+	err := collection.FindOne(context.TODO(), filter).Decode(&dungeon)
+	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			log.Error().Err(err).Msg("")
+			log.Error().Err(err).Msg("No document found")
 			return dungeon, err
 		}
+		return dungeon, err
 	}
-	return dungeon, err
+
+	return dungeon, nil
 }
 
 func (d *Dungeon) Update(id string, in *models.Dungeon) error {
@@ -174,5 +172,26 @@ func (d *Dungeon) Update(id string, in *models.Dungeon) error {
 	if err != nil {
 		log.Error().Err(err).Msg("")
 	}
+	return err
+}
+
+func (d *Dungeon) Publish(id string, in *models.Dungeon) error {
+	var err error
+	srv := server.GetServer()
+
+	dungeon, err := d.GetByID(id)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return err
+	}
+
+	dungeon.Status = "published"
+
+	collection := srv.Database.Collection(dungeon.Collection())
+
+	filter := bson.M{"customID": id} // ✅ simple et safe
+	update := bson.M{"$set": dungeon}
+
+	_, err = collection.UpdateOne(context.TODO(), filter, update)
 	return err
 }

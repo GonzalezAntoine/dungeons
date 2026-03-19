@@ -14,12 +14,14 @@ func SetupRouter(g *gin.Engine) {
 
 	v1 := g.Group("/v1")
 	{
-		dungeons := v1.Group("/dungeons")
+		mj := v1.Group("/mj")
 		{
-			dungeons.GET("", dungeonController.Get)
-			dungeons.POST("", dungeonController.Create)
-			dungeons.GET("/:id", dungeonController.GetByID)
-			dungeons.POST("/:id", dungeonController.Update)
+			dungeons := mj.Group("/dungeons")
+			{
+				dungeons.POST("", dungeonController.Create)
+				dungeons.POST("/:id/publish", dungeonController.Status)
+				//dungeons.POST("/:id/steps", dungeonController.UpdateSteps)
+			}
 		}
 	}
 }

@@ -167,3 +167,13 @@ func (s *Dungeon) Update(ctx *gin.Context) {
 	}
 	common.SendResponse(ctx, http.StatusOK, models.Success(http.StatusOK, messageTypes.OK, "dungeon updated"))
 }
+
+func (s *Dungeon) Status(ctx *gin.Context) {
+	id := ctx.Param("id")
+	err := s.DungeonService.Publish(id, nil)
+	if err != nil {
+		common.SendResponse(ctx, http.StatusBadRequest, models.KnownError(http.StatusInternalServerError, "dungeon.Publish.Error", err))
+		return
+	}
+	common.SendResponse(ctx, http.StatusOK, models.Success(http.StatusOK, "dungeon.Status.Updated", "dungeon status updated"))
+}
