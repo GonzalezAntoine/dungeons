@@ -23,5 +23,10 @@ func SetupRouter(g *gin.Engine) {
 				dungeons.POST("/:id/steps", dungeonController.UpdateSteps)
 			}
 		}
+		dungeon := v1.Group("/dungeons")
+		{
+			dungeon.GET("", dungeonController.Get)
+			dungeon.GET("/:id", dungeonController.GetByID)
+		}
 	}
 }
